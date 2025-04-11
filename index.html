@@ -147,9 +147,18 @@
                 
                 <!-- User List -->
                 <div class="bg-white rounded-xl shadow-lg p-6 lg:p-8">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">
-                        <i class="fas fa-users mr-2 text-indigo-600"></i> Usuários Cadastrados
-                    </h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold text-gray-800">
+                            <i class="fas fa-users mr-2 text-indigo-600"></i> Usuários Cadastrados
+                        </h2>
+                        <button 
+                            id="exportCsvBtn" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled
+                        >
+                            <i class="fas fa-file-csv mr-2"></i> Exportar CSV
+                        </button>
+                    </div>
                     
                     <div class="user-list max-h-96 overflow-y-auto pr-2">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -222,6 +231,7 @@
             const userTableBody = document.getElementById('userTableBody');
             const userCount = document.getElementById('userCount');
             const clearAllBtn = document.getElementById('clearAllBtn');
+            const exportCsvBtn = document.getElementById('exportCsvBtn');
             
             let users = [];
             
@@ -305,6 +315,34 @@
                 }
             });
             
+            // Export to CSV
+            exportCsvBtn.addEventListener('click', function() {
+                if (users.length === 0) {
+                    alert('Não há usuários cadastrados para exportar');
+                    return;
+                }
+                
+                // Create CSV content
+                let csvContent = "Nome,CPF,Data de Nascimento\n";
+                
+                users.forEach(user => {
+                    csvContent += `"${user.name}","${user.cpf}","${user.birthDate}"\n`;
+                });
+                
+                // Create download link
+                const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "usuarios_cadastrados.csv");
+                document.body.appendChild(link);
+                
+                // Trigger download
+                link.click();
+                
+                // Clean up
+                document.body.removeChild(link);
+            });
+            
             // Helper function to format date
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -342,8 +380,9 @@
                 // Update counter
                 userCount.textContent = users.length;
                 
-                // Enable/disable clear all button
+                // Enable/disable buttons
                 clearAllBtn.disabled = users.length === 0;
+                exportCsvBtn.disabled = users.length === 0;
             }
         });
     </script>
